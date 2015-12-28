@@ -12,15 +12,36 @@ class ViewController: UIViewController {
 
     let animationLayer = CALayer()
     var pathLayer : CAShapeLayer? = nil
+    var textLayer : CAShapeLayer? = nil
     
     func setupAnimationLayer() {
+    }
+    
+    func setupTextLayer() {
         
+        self.textLayer?.removeFromSuperlayer()
+        
+        let letters = CGPathCreateMutable()
+        
+        let font = CTFontCreateWithName("Helvetica-Bold" as NSString, 72, nil)
+        
+        let attrs = [NSFontAttributeName : font]
+        
+        let attrString = NSAttributedString(string: "Hello World!", attributes: attrs)
+        
+        let line = CTLineCreateWithAttributedString(attrString)
+        
+        let runArray = CTLineGetGlyphRuns(line)
+        
+        for index in 0..<CFArrayGetCount(runArray)
+        {
+            let run = CFArrayGetValueAtIndex(runArray, index)
+        }
     }
     
     func setupDrawingLayer() {
-        if (self.pathLayer != nil) {
-            self.pathLayer = nil
-        }
+        
+        self.pathLayer?.removeFromSuperlayer()
         
         let pathRect = CGRectInset(animationLayer.bounds, 100, 100)
         let bottomLeft = CGPoint(x: CGRectGetMinX(pathRect), y: CGRectGetMinY(pathRect))
@@ -50,9 +71,8 @@ class ViewController: UIViewController {
         pathLayer.lineWidth = 10
         pathLayer.lineJoin = kCALineJoinBevel
         
-        animationLayer.addSublayer(pathLayer)
-        
         self.pathLayer = pathLayer
+        animationLayer.addSublayer(pathLayer)
     }
     
     func startAnimation() {
@@ -62,8 +82,8 @@ class ViewController: UIViewController {
         
         let pathAnimation = CABasicAnimation(keyPath: "strokeEnd");
         pathAnimation.duration = 10
-        pathAnimation.fromValue = NSNumber(float: 1)
-        pathAnimation.toValue = NSNumber(float: 0)
+        pathAnimation.fromValue = NSNumber(float: 0)
+        pathAnimation.toValue = NSNumber(float: 1)
         pathLayer?.addAnimation(pathAnimation, forKey: nil)
     }
     
