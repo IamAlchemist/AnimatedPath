@@ -10,16 +10,29 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    let animationLayer = CALayer()
+    let pathLayer : CAShapeLayer? = nil
+    
+    func setupAnimationLayer() {
+        animationLayer.backgroundColor = UIColor.blueColor().CGColor
+    }
+    
+    func setupDrawingLayer() {
+        
+    }
+    
+    func startAnimation() {
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        animationLayer.frame = CGRect(x: 20, y: 64, width: CGRectGetWidth(view.bounds)-40, height: CGRectGetHeight(view.bounds)-84)
+        
+        setupAnimationLayer()
+        
+        view.layer.addSublayer(animationLayer)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
 
