@@ -27,16 +27,47 @@ class ViewController: UIViewController {
         
         let attrs = [NSFontAttributeName : font]
         
-        let attrString = NSAttributedString(string: "Hello World!", attributes: attrs)
+        let attrString = NSAttributedString(string: "Hello!", attributes: attrs)
         
         let line = CTLineCreateWithAttributedString(attrString)
         
-        let runArray = CTLineGetGlyphRuns(line)
-        
+        let runArray = ((CTLineGetGlyphRuns(line) as [AnyObject]) as! [CTRunRef])
+    
         for index in 0..<CFArrayGetCount(runArray)
         {
-            let run = CFArrayGetValueAtIndex(runArray, index)
+            let run = runArray[index]
+            
+            for runGlyphIndex in 0..<CTRunGetGlyphCount(run)
+            {
+                let thisGlyphRange = CFRangeMake(runGlyphIndex, 1)
+                var glyph = CGGlyph()
+                var position = CGPoint()
+                CTRunGetGlyphs(run, thisGlyphRange, &glyph)
+                CTRunGetPositions(run, thisGlyphRange, &position)
+                
+                let letter = CTFontCreatePathForGlyph(font, glyph, nil)
+                var t = CGAffineTransformMakeTranslation(position.x, position.y);
+                
+                CGPathAddPath(letters, &t, letter)
+            }
         }
+        
+        let path = UIBezierPath()
+        path.moveToPoint(CGPointZero)
+        path.appendPath(UIBezierPath(CGPath: letters))
+        
+        let pathLayer = CAShapeLayer()
+        pathLayer.frame = animationLayer.bounds
+        pathLayer.bounds = CGPathGetBoundingBox(path.CGPath)
+        pathLayer.geometryFlipped = true
+        pathLayer.path = path.CGPath
+        pathLayer.strokeColor = UIColor.blackColor().CGColor
+        pathLayer.fillColor = nil
+        pathLayer.lineWidth = 2
+        pathLayer.lineJoin = kCALineJoinBevel
+        
+        self.textLayer = pathLayer
+        animationLayer.addSublayer(pathLayer)
     }
     
     func setupDrawingLayer() {
@@ -85,6 +116,7 @@ class ViewController: UIViewController {
         pathAnimation.fromValue = NSNumber(float: 0)
         pathAnimation.toValue = NSNumber(float: 1)
         pathLayer?.addAnimation(pathAnimation, forKey: nil)
+        textLayer?.addAnimation(pathAnimation, forKey: nil)
     }
     
     override func viewDidLoad() {
@@ -95,7 +127,8 @@ class ViewController: UIViewController {
         setupAnimationLayer()
         view.layer.addSublayer(animationLayer)
         
-        setupDrawingLayer()
+//        setupDrawingLayer()
+        setupTextLayer()
         
         startAnimation()
     }
