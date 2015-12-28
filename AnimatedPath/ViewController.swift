@@ -11,13 +11,20 @@ import UIKit
 class ViewController: UIViewController {
 
     let animationLayer = CALayer()
+    let penLayer = CALayer()
     var pathLayer : CAShapeLayer? = nil
     
-    func setupAnimationLayer() {
+    func setupPenLayer() {
+        let penImage = UIImage(named: "pen")
+        penLayer.frame = CGRect(x: 0, y: 0, width: penImage!.size.width, height: penImage!.size.height)
+        penLayer.contents = penImage?.CGImage
+        penLayer.anchorPoint = CGPointZero
+        penLayer.hidden = true
     }
     
     func setupTextLayer() {
         
+        penLayer.removeFromSuperlayer()
         self.pathLayer?.removeFromSuperlayer()
         
         let letters = CGPathCreateMutable()
@@ -67,10 +74,13 @@ class ViewController: UIViewController {
         
         self.pathLayer = pathLayer
         animationLayer.addSublayer(pathLayer)
+        
+        pathLayer.addSublayer(penLayer)
     }
     
     func setupDrawingLayer() {
-        
+
+        penLayer.removeFromSuperlayer()
         self.pathLayer?.removeFromSuperlayer()
         
         let pathRect = CGRectInset(animationLayer.bounds, 100, 100)
@@ -103,29 +113,45 @@ class ViewController: UIViewController {
         
         self.pathLayer = pathLayer
         animationLayer.addSublayer(pathLayer)
+        
+        pathLayer.addSublayer(penLayer)
     }
     
     func startAnimation() {
-        if let layer = pathLayer {
-            layer.removeAllAnimations()
-        }
+        
+        penLayer.removeAllAnimations()
+        pathLayer?.removeAllAnimations()
+        
+        penLayer.hidden = false
         
         let pathAnimation = CABasicAnimation(keyPath: "strokeEnd");
         pathAnimation.duration = 10
         pathAnimation.fromValue = NSNumber(float: 0)
         pathAnimation.toValue = NSNumber(float: 1)
-        pathLayer?.addAnimation(pathAnimation, forKey: nil)
+        pathLayer?.addAnimation(pathAnimation, forKey: "strokeEnd")
+        
+        let penAnimation = CAKeyframeAnimation(keyPath: "position")
+        penAnimation.duration = 10
+        penAnimation.path = pathLayer?.path
+        penAnimation.calculationMode = kCAAnimationPaced
+        penAnimation.delegate = self
+        penAnimation.fillMode = kCAFillModeForwards
+        penLayer.addAnimation(penAnimation, forKey: "position")
+    }
+    
+    override func animationDidStop(anim: CAAnimation, finished flag: Bool) {
+        if flag {
+            penLayer.hidden = true
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         animationLayer.frame = CGRect(x: 20, y: 64, width: CGRectGetWidth(view.bounds)-40, height: CGRectGetHeight(view.bounds)-84)
-        
-        setupAnimationLayer()
         view.layer.addSublayer(animationLayer)
         
-//        setupDrawingLayer()
+        setupPenLayer()
         setupTextLayer()
         
         startAnimation()
