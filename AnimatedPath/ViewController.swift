@@ -12,14 +12,13 @@ class ViewController: UIViewController {
 
     let animationLayer = CALayer()
     var pathLayer : CAShapeLayer? = nil
-    var textLayer : CAShapeLayer? = nil
     
     func setupAnimationLayer() {
     }
     
     func setupTextLayer() {
         
-        self.textLayer?.removeFromSuperlayer()
+        self.pathLayer?.removeFromSuperlayer()
         
         let letters = CGPathCreateMutable()
         
@@ -66,7 +65,7 @@ class ViewController: UIViewController {
         pathLayer.lineWidth = 2
         pathLayer.lineJoin = kCALineJoinBevel
         
-        self.textLayer = pathLayer
+        self.pathLayer = pathLayer
         animationLayer.addSublayer(pathLayer)
     }
     
@@ -116,7 +115,6 @@ class ViewController: UIViewController {
         pathAnimation.fromValue = NSNumber(float: 0)
         pathAnimation.toValue = NSNumber(float: 1)
         pathLayer?.addAnimation(pathAnimation, forKey: nil)
-        textLayer?.addAnimation(pathAnimation, forKey: nil)
     }
     
     override func viewDidLoad() {
@@ -131,6 +129,19 @@ class ViewController: UIViewController {
         setupTextLayer()
         
         startAnimation()
+    }
+    
+    @IBAction func segmentChanged(sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            setupDrawingLayer()
+            startAnimation()
+        case 1:
+            setupTextLayer()
+            startAnimation()
+        default:
+            break
+        }
     }
 }
 
